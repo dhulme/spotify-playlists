@@ -2,26 +2,17 @@
 import { spotifyApi, initToken } from "./api";
 import type { PlaylistTrack } from "./api";
 import { ref, onBeforeMount, watchEffect } from "vue";
+import { usePlaylistStore } from "./stores/playlist";
 import PlaylistPane from "./components/PlaylistPane.vue";
 import PlaylistTrackPane from "./components/PlaylistTrackPane.vue";
 import SearchPane from "./components/SearchPane.vue";
 import PlaylistsPane from "./components/PlaylistsPane.vue";
 import TheHeader from "./components/TheHeader.vue";
 
-const album = ref();
-const playlist = ref(null);
-const albumId = ref(null);
-const playlistTrack = ref<PlaylistTrack | null>(null);
+const playlistStore = usePlaylistStore();
 
 onBeforeMount(async () => {
   initToken();
-});
-
-watchEffect(async () => {
-  if (albumId.value) {
-    album.value = await spotifyApi.getAlbum(albumId.value);
-    console.log("album.value", album.value);
-  }
 });
 </script>
 
@@ -30,17 +21,14 @@ watchEffect(async () => {
     <TheHeader />
     <main>
       <div class="section">
-      <PlaylistsPane @playlist-selected="(_) => (playlist = _)" />
-      <PlaylistPane
-        v-if="playlist"
-        :playlist="playlist"
-        @track-selected="(track) => (playlistTrack = track)"
-      />
-      <PlaylistTrackPane
-        v-if="playlistTrack"
-        :playlistTrack="playlistTrack"
-        :playlist="playlist"
-      />
+        <PlaylistsPane
+        />
+        <PlaylistPane
+          v-if="playlistStore.playlist"
+        />
+        <PlaylistTrackPane
+          v-if="playlistStore.playlistTrack"
+        />
       </div>
       <SearchPane />
     </main>

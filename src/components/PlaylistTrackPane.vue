@@ -1,40 +1,36 @@
 <script setup lang="ts">
 import type { PlaylistTrack } from "../api";
 import { spotifyApi, initToken } from "../api";
-import PaneItem from "./PaneItem.vue";
+import { usePlaylistStore } from '../stores/playlist';
+import PanelItem from "./PanelItem.vue";
 
-const props = defineProps<{
-  playlistTrack: PlaylistTrack;
-  playlist: any;
-}>();
+const playlistStore = usePlaylistStore();
 
 
 function remove() {
-  spotifyApi.removeTracksFromPlaylist(
-    props.playlist.id,
-    [props.playlistTrack.track]
-  );
+  playlistStore.removeTrackFromPlaylist();
 }
+
 </script>
 
 <template>
-  <PaneItem>
-    <h1>{{ playlistTrack.position }} - {{ playlistTrack.track.name }}</h1>
-    <a :href="playlistTrack.track.external_urls.spotify" target="_blank">
-    <img :src="playlistTrack.track.album.images[0].url" class="album-art" />
+  <PanelItem v-if="playlistStore.playlistTrack">
+    <h1>{{ playlistStore.playlistTrack.position }} - {{ playlistStore.playlistTrack.track.name }}</h1>
+    <a :href="playlistStore.playlistTrack.track.external_urls.spotify" target="_blank">
+    <img v-if="playlistStore.playlistTrack.track.album.images.length" :src="playlistStore.playlistTrack.track.album.images[0].url" class="album-art" />
     </a>
     <p>
-      <span v-for="artist in playlistTrack.track.artists" :key="artist.id">
+      <span v-for="artist in playlistStore.playlistTrack.track.artists" :key="artist.id">
         {{ artist.name }}<br>
       </span>
     </p>
 
     <div class="buttons">
-      <button @click="remove">Remove</button>
-      <button>Move to</button>
-      <button>Replace</button>
+      <button class="secondary" @click="remove">Remove</button>
+      <button class="secondary">Move to</button>
+      <button class="secondary">Replace</button>
     </div>
-  </PaneItem>
+  </PanelItem>
 </template>
 
 <style scoped>

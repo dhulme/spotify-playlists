@@ -1,20 +1,18 @@
 <script setup lang="ts">
 import { onBeforeMount, onMounted, ref } from 'vue';
-import PaneItem from "./PaneItem.vue";
+import PaneItem from "./PanelItem.vue";
 import { spotifyApi } from "../api";
 import ListContainer from "./ListContainer.vue";
 import ListItem from "./ListItem.vue";
 import PanelTitle from "./PanelTitle.vue";
-defineEmits<{
-  (event: "playlistSelected", playlist: any): void;
-}>();
-const playlists = ref<any>();
+import { usePlaylistStore } from '../stores/playlist';
 
-onBeforeMount(async () => {
-  playlists.value = (await spotifyApi.getUserPlaylists((await spotifyApi.getMe()).id, {
-    limit: 50
-  })).items;
+const playlistStore = usePlaylistStore();
+
+onBeforeMount(() => {
+  playlistStore.loadPlaylists();
 })
+
 </script>
 
 <template>
@@ -22,9 +20,9 @@ onBeforeMount(async () => {
     <PanelTitle>Playlists</PanelTitle>
     <ListContainer>
         <ListItem
-          v-for="playlist in playlists"
+          v-for="playlist in playlistStore.playlists"
           :key="playlist.id"
-          @click="$emit('playlistSelected', playlist)"
+          @click="playlistStore.setPlaylist(playlist)"
         >
           {{ playlist.name }}
         </ListItem>

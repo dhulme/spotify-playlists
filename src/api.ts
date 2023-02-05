@@ -116,3 +116,11 @@ export type PlaylistTrack = {
   added_at: string;
   position: number;
 };
+
+export type Playlist = {
+  tracks: {
+    total: number;
+  };
+  id: string;
+  name: string;
+}
