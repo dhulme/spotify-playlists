@@ -123,4 +123,5 @@ export type Playlist = {
   };
   id: string;
   name: string;
+  snapshot_id: string;
 }

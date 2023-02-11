@@ -2,11 +2,13 @@
 
 ## TODO
 
+[ ] Playlist folders
+[ ] Reorder/move playlists
+[ ] Indicate managable playlists
+
 [ ] Three panes - Playlists list, playlist, album view
 [ ] Drag/drop to specific point in playlist
 [ ] Find replacements for local/unavailable tracks
-[ ] Manage playlist folders more easily
-[ ] Launch track in spotify
 [ ] 
 
 ## Project Setup

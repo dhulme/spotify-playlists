@@ -17,7 +17,7 @@ const unavailable = ref(false);
 const playlistStore = usePlaylistStore();
 
 const playlistTracksFiltered = computed(() =>
-  playlistStore.playlistTracks.filter((track) => {
+  playlistStore.playlistTracks.map((track, index) => ({...track, position: index + 1})).filter((track) => {
     return (local.value ? track.is_local : true) &&
       (unavailable.value ? !track.track.is_playable && !track.is_local : true);
   })
