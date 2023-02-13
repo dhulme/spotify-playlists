@@ -8,11 +8,14 @@ import PlaylistTrackPane from "./components/PlaylistTrackPane.vue";
 import SearchPane from "./components/SearchPane.vue";
 import PlaylistsPane from "./components/PlaylistsPane.vue";
 import TheHeader from "./components/TheHeader.vue";
+import { useUserStore } from './stores/user';
 
 const playlistStore = usePlaylistStore();
+const userStore = useUserStore();
 
 onBeforeMount(async () => {
   initToken();
+  userStore.loadUser()
 });
 </script>
 

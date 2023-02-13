@@ -1,6 +1,13 @@
-import type { Playlist, PlaylistTrack } from "@/api";
+import type { Playlist, PlaylistTrack, User } from "@/api";
 import { spotifyApi, initToken } from "@/api";
 import { defineStore } from "pinia";
+
+function getPlaylistItem(user: User, playlist: any): Playlist {
+  return {
+    ...playlist,
+    editable: playlist.owner.id === user.id || playlist.collaborative,
+  };
+}
 
 export const usePlaylistStore = defineStore("playlist", {
   state: (): {
@@ -26,15 +33,23 @@ export const usePlaylistStore = defineStore("playlist", {
     setPlaylistTrack(track: PlaylistTrack | null) {
       this.playlistTrack = track;
     },
-    async loadPlaylists() {
-      this.playlists = (
-        await spotifyApi.getUserPlaylists((await spotifyApi.getMe()).id, {
+    async loadPlaylists(user: User) {
+      const playlists = (
+        await spotifyApi.getUserPlaylists(user.id, {
           limit: 50,
         })
       ).items;
+      this.playlists = playlists.map((playlist) =>
+        getPlaylistItem(user, playlist)
+      );
     },
-    setPlaylistTracks(tracks: PlaylistTrack[]) {
-      this.playlistTracks = tracks;
+    async refreshPlaylist(user: User) {
+      await this.loadPlaylists(user);
+      this.playlist = getPlaylistItem(
+        user,
+        this.playlists.find((playlist) => playlist.id === this.playlist?.id)
+      );
+      await this.loadPlaylistTracks();
     },
     async loadPlaylistTracks() {
       const playlistTracks = [];
@@ -73,17 +88,25 @@ export const usePlaylistStore = defineStore("playlist", {
           added_at: new Date().toISOString(),
           position: newPosition + 1,
         });
-        await spotifyApi.addTracksToPlaylist(this.playlist?.id, [track.uri], {
-          position: newPosition,
-        });
+        const response = await spotifyApi.addTracksToPlaylist(
+          this.playlist?.id,
+          [track.uri],
+          {
+            position: newPosition,
+          }
+        );
+        this.playlist.snapshot_id = response.snapshot_id;
       }
     },
     async removeTrackFromPlaylist() {
       if (this.playlist && this.playlistTrack) {
         this.playlistTracks.splice(this.playlistTrack.position - 1, 1);
-        await spotifyApi.removeTracksFromPlaylist(this.playlist?.id, [
-          this.playlistTrack.track.uri,
-        ]);
+        const response = await spotifyApi.removeTracksFromPlaylistInPositions(
+          this.playlist.id,
+          [this.playlistTrack.position - 1],
+          this.playlist.snapshot_id
+        );
+        this.playlist.snapshot_id = response.snapshot_id;
       }
     },
     async replaceTrackInPlaylist(track: PlaylistTrack["track"]) {
@@ -100,9 +123,14 @@ export const usePlaylistStore = defineStore("playlist", {
           [position - 1],
           this.playlist.snapshot_id
         );
-        await spotifyApi.addTracksToPlaylist(this.playlist.id, [track.uri], {
-          position: position - 1,
-        });
+        const response = await spotifyApi.addTracksToPlaylist(
+          this.playlist.id,
+          [track.uri],
+          {
+            position: position - 1,
+          }
+        );
+        this.playlist.snapshot_id = response.snapshot_id;
       }
     },
     async reorderTrackInPlaylist(position: number) {
@@ -112,11 +140,12 @@ export const usePlaylistStore = defineStore("playlist", {
         const newIndex = position - 1;
         this.playlistTracks.splice(oldIndex, 1);
         this.playlistTracks.splice(newIndex, 0, this.playlistTrack);
-        await spotifyApi.reorderTracksInPlaylist(
+        const response = await spotifyApi.reorderTracksInPlaylist(
           this.playlist.id,
-          newIndex > oldIndex ? newIndex: oldIndex,
-          newIndex > oldIndex ? oldIndex: newIndex,
+          newIndex > oldIndex ? newIndex : oldIndex,
+          newIndex > oldIndex ? oldIndex : newIndex
         );
+        this.playlist.snapshot_id = response.snapshot_id;
         this.playlistTrack.position = position;
       }
     },

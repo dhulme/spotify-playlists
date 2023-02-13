@@ -69,8 +69,13 @@ function replaceInPlaylist() {
           {{ artist.name }}<br />
         </span>
       </p>
-      <button class="secondary" @click="addToPlaylist">Add to playlist</button>
-      <button class="secondary" @click="replaceInPlaylist">Replace in playlist</button>
+
+      <div class="buttons" v-if="playlistStore.playlist?.editable">
+        <button class="secondary" @click="addToPlaylist">Add to playlist</button>
+        <button class="secondary" @click="replaceInPlaylist">
+          Replace in playlist
+        </button>
+      </div>
       <!-- <ListContainer>
       <ListItem v-for="track in selectedAlbum.tracks.items" :key="track.id">
         {{ track.name }}

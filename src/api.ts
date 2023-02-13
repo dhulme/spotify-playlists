@@ -124,4 +124,27 @@ export type Playlist = {
   id: string;
   name: string;
   snapshot_id: string;
+  collaborative: boolean;
+  owner: {
+    display_name?: string;
+    id: string;
+    uri: string;
+  };
+  public: boolean;
+
+
+  editable: boolean;
+}
+
+export type User = {
+  display_name?: string;
+  id: string;
+  images?: {
+    url: string;
+  }[];
+  uri: string;
+  email: string;
+  followers?: {
+    total: number;
+  }
 }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watchEffect } from 'vue';
+import { ref, watchEffect } from "vue";
 import type { PlaylistTrack } from "../api";
 import { spotifyApi, initToken } from "../api";
 import { usePlaylistStore } from "../stores/playlist";
@@ -11,19 +11,18 @@ const position = ref(playlistStore.playlistTrack?.position);
 
 function remove() {
   playlistStore.removeTrackFromPlaylist();
-  playlistStore.setPlaylistTrack(null)
+  playlistStore.setPlaylistTrack(null);
 }
 
 function move() {
   if (position.value !== undefined) {
-    playlistStore.reorderTrackInPlaylist(position.value)
+    playlistStore.reorderTrackInPlaylist(position.value);
   }
 }
 
 watchEffect(() => {
-  console.log('hi')
   position.value = playlistStore.playlistTrack?.position;
-})
+});
 </script>
 
 <template>
@@ -31,7 +30,6 @@ watchEffect(() => {
     <h1>
       {{ playlistStore.playlistTrack.track.name }}
     </h1>
-    <input type="number" v-model="position" :max="playlistStore.playlistTracks.length" min="1" />
     <a
       :href="playlistStore.playlistTrack.track.external_urls.spotify"
       target="_blank"
@@ -50,8 +48,20 @@ watchEffect(() => {
         {{ artist.name }}<br />
       </span>
     </p>
+    <p>
+      {{ new Date(playlistStore.playlistTrack.added_at).toLocaleDateString() }}
+    </p>
+    
+    <label for="position">Position</label>
+    <input
+    id="position"
+      type="number"
+      v-model="position"
+      :max="playlistStore.playlistTracks.length"
+      min="1"
+    />
 
-    <div class="buttons">
+    <div class="buttons" v-if="playlistStore.playlist?.editable">
       <button class="secondary" @click="remove">Remove</button>
       <button class="secondary" @click="move">Move</button>
     </div>
@@ -72,5 +82,8 @@ watchEffect(() => {
 <style scoped>
 .album-art {
   width: 10rem;
+}
+h1 {
+  margin-bottom: 0.5rem;
 }
 </style>
