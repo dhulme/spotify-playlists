@@ -21,7 +21,6 @@ const userStore = useUserStore();
 
 const playlistTracksFiltered = computed(() =>
   playlistStore.playlistTracks
-    .map((track, index) => ({ ...track, position: index + 1 }))
     .filter((track) => {
       return (
         (local.value ? track.is_local : true) &&
@@ -80,7 +79,7 @@ function handleScroll(event: Event) {
             @click="playlistStore.setPlaylistTrack(track)"
             :style="{ opacity: track.track.is_playable ? 1 : 0.5 }"
           >
-            <span class="position">{{ track.position }}</span
+            <span class="position">{{ track.position + 1 }}</span
             >{{ track.track.name }} <em>{{ track.track.artists[0].name }}</em>
             <Icon class="local" v-if="track.is_local" :icon="mdiHarddisk" />
           </ListItem>

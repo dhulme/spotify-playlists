@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, watchEffect } from "vue";
 import type { PlaylistTrack } from "../api";
-import { spotifyApi, initToken } from "../api";
 import { usePlaylistStore } from "../stores/playlist";
 import PanelItem from "./PanelItem.vue";
 
@@ -16,12 +15,14 @@ function remove() {
 
 function move() {
   if (position.value !== undefined) {
-    playlistStore.reorderTrackInPlaylist(position.value);
+    playlistStore.reorderTrackInPlaylist(position.value - 1);
   }
 }
 
 watchEffect(() => {
-  position.value = playlistStore.playlistTrack?.position;
+  if (playlistStore.playlistTrack?.position !== undefined) {
+    position.value = playlistStore.playlistTrack.position + 1;
+  }
 });
 </script>
 
@@ -51,19 +52,20 @@ watchEffect(() => {
     <p>
       {{ new Date(playlistStore.playlistTrack.added_at).toLocaleDateString() }}
     </p>
-    
+
     <label for="position">Position</label>
     <input
-    id="position"
+      id="position"
       type="number"
       v-model="position"
       :max="playlistStore.playlistTracks.length"
       min="1"
+      @keydown.enter="move"
     />
 
     <div class="buttons" v-if="playlistStore.playlist?.editable">
-      <button class="secondary" @click="remove">Remove</button>
       <button class="secondary" @click="move">Move</button>
+      <button class="secondary" @click="remove">Remove</button>
     </div>
   </PanelItem>
 
