@@ -120,7 +120,7 @@ export const usePlaylistStore = defineStore("playlist", {
         });
         await spotifyApi.removeTracksFromPlaylistInPositions(
           this.playlist.id,
-          [position - 1],
+          [position],
           this.playlist.snapshot_id
         );
         const response = await spotifyApi.addTracksToPlaylist(
