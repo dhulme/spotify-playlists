@@ -37,7 +37,7 @@ function getHashParams() {
 export const spotifyApi = new SpotifyWebApi();
 
 function logIn() {
-  const clientId = "3c23979b56a64f6f85b522bf9151edd4";
+  const clientId = "7e3bd48a271a4d408463315a7696c35f";
   const redirectUri = location.origin + location.pathname;
 
   const state = generateRandomString(16);
