@@ -34,14 +34,23 @@ export const usePlaylistStore = defineStore("playlist", {
       this.playlistTrack = track;
     },
     async loadPlaylists(user: User) {
-      const playlists = (
-        await spotifyApi.getUserPlaylists(user.id, {
-          limit: 50,
-        })
-      ).items;
-      this.playlists = playlists.map((playlist) =>
-        getPlaylistItem(user, playlist)
-      );
+      const limit = 50;
+
+      let offset = 0;
+      let totalPlaylists = 0;
+      do {
+        const { items: playlists,total} = (
+          await spotifyApi.getUserPlaylists(user.id, {
+            limit,
+            offset
+          })
+        );
+        totalPlaylists = total;
+        this.playlists = [...this.playlists, ...playlists.map((playlist) =>
+          getPlaylistItem(user, playlist)
+        )];
+        offset += limit;
+      } while (this.playlists.length < totalPlaylists);
     },
     async refreshPlaylist(user: User) {
       await this.loadPlaylists(user);

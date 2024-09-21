@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeMount, onMounted, ref, watchEffect } from 'vue';
+import { computed, onBeforeMount, onMounted, ref, watchEffect } from 'vue';
 import PaneItem from "./PanelItem.vue";
 import type { spotifyApi, Playlist } from "../api";
 import ListContainer from "./ListContainer.vue";
@@ -11,6 +11,16 @@ import { useUserStore } from '@/stores/user';
 const playlistStore = usePlaylistStore();
 const user = useUserStore();
 
+const filter = ref("");
+
+const playlistsFiltered = computed(() =>
+  playlistStore.playlists.filter((playlist) => {
+    return filter.value
+      ? playlist.name.toLowerCase().includes(filter.value.toLowerCase())
+      : true;
+  })
+);
+
 watchEffect(() => {
   if (user.user) {
     playlistStore.loadPlaylists(user.user);
@@ -21,10 +31,12 @@ watchEffect(() => {
 
 <template>
   <PaneItem class="pane">
-    <PanelTitle>Playlists</PanelTitle>
+    <PanelTitle>Playlist</PanelTitle>
+    <p v-if="playlistStore.playlists.length">{{ playlistStore.playlists.length }} playlists</p>
+    <input class="filter" type="text" v-model="filter" placeholder="Search" />
     <ListContainer>
         <ListItem
-          v-for="playlist in playlistStore.playlists"
+          v-for="playlist in playlistsFiltered"
           :key="playlist.id"
           @click="playlistStore.setPlaylist(playlist)"
           :class="{ editable: playlist.editable }"
